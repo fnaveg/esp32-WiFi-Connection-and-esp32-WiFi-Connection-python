@@ -1,0 +1,54 @@
+#include <WiFi.h>
+#include <Wire.h>
+
+
+const char* ssid = "WiFi SSID"; //  와이파이 이름
+const char* password = "WiFi Password"; //  암호
+WiFiServer server(80); // TCP 서버 포트 번호 python 연결에 필요함, it's needed to connect arduino to python
+
+
+void setup() {
+  Serial.begin(115200);
+  
+  // WiFi 연결 connaction WiFi
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to WiFi...");
+  }
+  Serial.println("Connected to WiFi!");
+  
+  // TCP 서버 시작 TCP server start
+  server.begin();
+  Serial.println("TCP server started.");
+  Serial.print("Local IP : ");
+  Serial.println(WiFi.localIP()); // esp32의 할당 받은 ip 주소 Assigned ip address of esp32
+}
+
+void loop() {
+  // 클라이언트 접속 대기 Waiting for client connection
+  WiFiClient client = server.available();
+  if (client) {
+    Serial.println("New client connected.");
+    
+     //지속적으로 데이터 전송
+    while (client.connected()) {
+      // 클라이언트에서 데이터 수신  Receive data from the client
+      byte data = client.read();
+      char data_char = char(data);
+      if (data_char == '1') {
+        Serial.println("True");
+        delay(5000);
+      }
+      else if (data_char == '2') {
+        Serial.println("False");
+        delay(5000);
+      }
+    }
+    
+    
+    // 클라이언트와 연결 해제  Disconnecting from the client
+    client.stop();
+    Serial.println("Client disconnected.");
+  }
+}
