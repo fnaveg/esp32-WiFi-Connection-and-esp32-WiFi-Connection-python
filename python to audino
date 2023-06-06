@@ -1,0 +1,19 @@
+import socket
+
+HOST = '192.168.35.179' # ESP32의 IP 주소
+PORT = 80 # TCP 서버 포트 번호 TCP server port number
+
+# 서버에 접속 Connecting to a Server
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect((HOST, PORT))
+
+# 데이터 수신 Receive data
+while True:
+    data = input("ESP32로 전송할 값을 입력하세요 : ") #Enter the value to send to ESP32
+    if data == 'stop': #stop 을 입력하면 자동으로 연결 해제
+        break # 클라이언트 종료를 위한 코드 중요 ! Code Critical for Client Shutdown!
+    byte_data = data.encode(encoding="utf-8")
+    client.send(byte_data)
+       
+# 소켓 종료
+client.close()
